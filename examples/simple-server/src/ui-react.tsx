@@ -1,14 +1,14 @@
 import { useState, useCallback } from "react";
 import { createRoot } from "react-dom/client";
-import { useApp } from "@modelcontextprotocol/ext-apps/react/useApp";
+import {
+  useApp,
+  McpUiSizeChangeNotificationSchema,
+  McpUiToolResultNotificationSchema,
+} from "@modelcontextprotocol/ext-apps/react";
 import type {
   CallToolResult,
   Implementation,
 } from "@modelcontextprotocol/sdk/types.js";
-import {
-  McpUiSizeChangeNotificationSchema,
-  McpUiToolResultNotificationSchema,
-} from "@modelcontextprotocol/ext-apps/types";
 
 const APP_INFO: Implementation = {
   name: "MCP UI React Example Client",
