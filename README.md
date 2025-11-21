@@ -1,6 +1,6 @@
 # @modelcontextprotocol/ext-apps
 
-This repo contains the SDK and [specification](./main/specification/draft/apps.mdx) for MCP Apps Extension ([SEP-1865](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/1865)).
+This repo contains the SDK and [specification](./specification/draft/apps.mdx) for MCP Apps Extension ([SEP-1865](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/1865)).
 
 MCP Apps are proposed standard inspired by [MCP-UI](https://mcpui.dev/) and [OpenAI's Apps SDK](https://developers.openai.com/apps-sdk/) to allow MCP Servers to display interactive UI elements in conversational MCP clients / chatbots.
 
@@ -13,7 +13,7 @@ This repo provides:
   - [ui-react.tsx](./examples/simple-server/src/ui-react.tsx): React App returned by the `create-ui-react` tool shows how to use the `useApp` hook to register MCP callbacks
   - [ui-vanilla.tsx](./examples/simple-server/src/ui-vanilla.ts): vanilla App returned by the `create-ui-vanilla`
   
-- [main/specification/draft/apps.mdx](./main/specification/draft/apps.mdx): The Draft Extension Specification. It's still... in flux! Feedback welcome! (also see discussions in [SEP-1865](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/1865)).
+- [specification/draft/apps.mdx](./specification/draft/apps.mdx): The Draft Extension Specification. It's still... in flux! Feedback welcome! (also see discussions in [SEP-1865](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/1865)).
 
 - [message-transport](./src/message-transport.ts): `PostMessageTransport` class that uses `postMessage` to exchange JSON-RPC messages between windows / iframes
 
