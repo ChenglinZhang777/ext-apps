@@ -8,7 +8,7 @@ This repo provides:
 - [types.ts](./src/types.ts): Types of JSON-RPC messages used to communicate between Apps & their host
   - Note that MCP Apps also use some standard MCP messages (e.g. `tools/call` for the App to trigger actions on its originating Server - these calls are proxied through the Host), but these types are the additional messages defined by the extension
   
-- [examples/simple-example](./examples/simple-example): Example Server + Apps
+- [examples/simple-example](./examples/simple-server): Example Server + Apps
   - [server.ts](./examples/simple-server/server.ts): MCP server with two tools that declare UI resources of Apps to be show in the chat when called
   - [ui-react.tsx](./examples/simple-server/src/ui-react.tsx): React App returned by the `create-ui-react` tool shows how to use the `useApp` hook to register MCP callbacks
   - [ui-vanilla.tsx](./examples/simple-server/src/ui-vanilla.ts): vanilla App returned by the `create-ui-vanilla`
