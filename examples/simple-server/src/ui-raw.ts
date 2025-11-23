@@ -1,4 +1,20 @@
-import {
+/**
+ * @file App that does NOT depend on Apps SDK runtime.
+ *
+ * The Raw UI example has no runtime dependency to the Apps SDK
+ * but still imports its types for static type safety.
+ * Types can be just stripped, e.g. w/ the command line:
+ *
+ * <code>
+ * npx esbuild src/ui-raw.ts --bundle --outfile=dist/ui-raw.js --minify --sourcemap --platform=browser
+ * </code>
+ * 
+ * We implement a barebones JSON-RPC message sender/receiver (see `app` object below),
+ * but without timeouts or runtime type validation of any kind
+ * (for that, use the Apps SDK / see ui-vanilla.ts or ui-react.ts).
+ */
+
+import type {
   McpUiInitializeRequest,
   McpUiInitializeResult,
   McpUiInitializedNotification,
@@ -11,7 +27,8 @@ import {
   McpUiOpenLinkRequest,
   McpUiOpenLinkResult,
 } from "@modelcontextprotocol/ext-apps";
-import {
+
+import type {
   CallToolRequest,
   CallToolResult,
   JSONRPCMessage,
@@ -19,18 +36,21 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 
 const app = (() => {
+  type Sendable = { method: string; params: any };
+
   let nextId = 1;
+
   return {
-    sendRequest({ method, params }: { method: string; params: any }) {
+    sendRequest<T extends Sendable, Result>({ method, params }: T) {
       const id = nextId++;
       window.parent.postMessage({ jsonrpc: "2.0", id, method, params }, "*");
-      return new Promise((resolve, reject) => {
+      return new Promise<Result>((resolve, reject) => {
         window.addEventListener("message", function listener(event) {
           const data: JSONRPCMessage = event.data;
           if (event.data?.id === id) {
             window.removeEventListener("message", listener);
             if (event.data?.result) {
-              resolve(true);
+              resolve(event.data.result as Result);
             } else if (event.data?.error) {
               reject(new Error(event.data.error));
             }
@@ -40,10 +60,13 @@ const app = (() => {
         });
       });
     },
-    sendNotification({ method, params }: { method: string; params: any }) {
+    sendNotification<T extends Sendable>({ method, params }: T) {
       window.parent.postMessage({ jsonrpc: "2.0", method, params }, "*");
     },
-    onNotification(method: string, handler: (params: any) => void) {
+    onNotification<T extends Sendable>(
+      method: T["method"],
+      handler: (params: T["params"]) => void,
+    ) {
       window.addEventListener("message", function listener(event) {
         if (event.data?.method === method) {
           handler(event.data.params);
@@ -69,35 +92,40 @@ window.addEventListener("load", async () => {
       { style: "color: red;" },
     );
 
-  app.onNotification(
-    "ui/notifications/tool-result" as McpUiToolResultNotification["method"],
-    async (params: McpUiToolResultNotification["params"]) => {
-      appendText(`Tool call result: ${JSON.stringify(params)}`);
-    },
-  );
-  app.onNotification(
-    "ui/notifications/host-context-changed" as McpUiHostContextChangedNotification["method"],
-    async (params: McpUiHostContextChangedNotification["params"]) => {
-      appendText(`Host context changed: ${JSON.stringify(params)}`);
-    },
-  );
-  app.onNotification(
-    "ui/notifications/tool-input" as McpUiToolInputNotification["method"],
-    async (params: McpUiToolInputNotification["params"]) => {
+  app.onNotification<McpUiToolInputNotification>(
+    "ui/notifications/tool-input",
+    async (params) => {
       appendText(`Tool call input: ${JSON.stringify(params)}`);
     },
   );
+  app.onNotification<McpUiToolResultNotification>(
+    "ui/notifications/tool-result",
+    async (params) => {
+      appendText(`Tool call result: ${JSON.stringify(params)}`);
+    },
+  );
+  app.onNotification<McpUiHostContextChangedNotification>(
+    "ui/notifications/host-context-changed",
+    async (params) => {
+      appendText(`Host context changed: ${JSON.stringify(params)}`);
+    },
+  );
 
-  const initializeResult = (await app.sendRequest(<McpUiInitializeRequest>{
+  const initializeResult = await app.sendRequest<
+    McpUiInitializeRequest,
+    McpUiInitializeResult
+  >({
     method: "ui/initialize",
     params: {
       appCapabilities: {},
       appInfo: { name: "My UI", version: "1.0.0" },
       protocolVersion: "2025-06-18",
     },
-  })) as McpUiInitializeResult;
+  });
 
-  app.sendNotification(<McpUiInitializedNotification>{
+  appendText(`Initialize result: ${JSON.stringify(initializeResult)}`);
+
+  app.sendNotification<McpUiInitializedNotification>({
     method: "ui/notifications/initialized",
     params: {},
   });
@@ -116,7 +144,7 @@ window.addEventListener("load", async () => {
       (parseFloat(htmlStyle.borderTop) || 0) +
       (parseFloat(htmlStyle.borderBottom) || 0);
 
-    app.sendNotification(<McpUiSizeChangeNotification>{
+    app.sendNotification<McpUiSizeChangeNotification>({
       method: "ui/notifications/size-change",
       params: { width, height },
     });
@@ -127,13 +155,15 @@ window.addEventListener("load", async () => {
       textContent: "Get Weather (Tool)",
       onclick: async () => {
         try {
-          const result = (await app.sendRequest(<CallToolRequest>{
-            method: "tools/call",
-            params: {
-              name: "get-weather",
-              arguments: { location: "Tokyo" },
+          const result = await app.sendRequest<CallToolRequest, CallToolResult>(
+            {
+              method: "tools/call",
+              params: {
+                name: "get-weather",
+                arguments: { location: "Tokyo" },
+              },
             },
-          })) as CallToolResult;
+          );
 
           appendText(`Weather tool result: ${JSON.stringify(result)}`);
         } catch (e) {
@@ -147,7 +177,7 @@ window.addEventListener("load", async () => {
     Object.assign(document.createElement("button"), {
       textContent: "Notify Cart Updated",
       onclick: async () => {
-        app.sendNotification(<LoggingMessageNotification>{
+        app.sendNotification<LoggingMessageNotification>({
           method: "notifications/message",
           params: {
             level: "info",
@@ -163,7 +193,10 @@ window.addEventListener("load", async () => {
       textContent: "Prompt Weather in Tokyo",
       onclick: async () => {
         try {
-          const { isError } = (await app.sendRequest(<McpUiMessageRequest>{
+          const { isError } = await app.sendRequest<
+            McpUiMessageRequest,
+            McpUiMessageResult
+          >({
             method: "ui/message",
             params: {
               role: "user",
@@ -174,7 +207,7 @@ window.addEventListener("load", async () => {
                 },
               ],
             },
-          })) as McpUiMessageResult;
+          });
 
           appendText(`Message result: ${isError ? "error" : "success"}`);
         } catch (e) {
@@ -189,12 +222,15 @@ window.addEventListener("load", async () => {
       textContent: "Open Link to Google",
       onclick: async () => {
         try {
-          const { isError } = (await app.sendRequest(<McpUiOpenLinkRequest>{
+          const { isError } = await app.sendRequest<
+            McpUiOpenLinkRequest,
+            McpUiOpenLinkResult
+          >({
             method: "ui/open-link",
             params: {
               url: "https://www.google.com",
             },
-          })) as McpUiOpenLinkResult;
+          });
           appendText(`Link result: ${isError ? "error" : "success"}`);
         } catch (e) {
           appendError(e);
