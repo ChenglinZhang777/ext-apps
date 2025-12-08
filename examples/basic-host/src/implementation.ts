@@ -239,8 +239,13 @@ export function newAppBridge(serverInfo: ServerInfo, iframe: HTMLIFrameElement):
       if (isBorderBox) {
         width += parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth);
       }
-      from.width = `${iframe.offsetWidth}px`;
-      iframe.style.width = to.width = `${width}px`;
+      // Use min-width instead of width to allow responsive growing.
+      // With auto-resize (the default), the app reports its minimum content
+      // width; we honor that as a floor but allow the iframe to expand when
+      // the host layout allows. And we use `min(..., 100%)` so that the iframe
+      // shrinks with its container.
+      from.minWidth = `${iframe.offsetWidth}px`;
+      iframe.style.minWidth = to.minWidth = `min(${width}px, 100%)`;
     }
     if (height !== undefined) {
       if (isBorderBox) {
