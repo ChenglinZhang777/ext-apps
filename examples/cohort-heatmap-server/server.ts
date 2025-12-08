@@ -241,7 +241,9 @@ async function main() {
     });
 
     const httpServer = app.listen(PORT, () => {
-      console.log(`Cohort Heatmap Server listening on http://localhost:${PORT}/mcp`);
+      console.log(
+        `Cohort Heatmap Server listening on http://localhost:${PORT}/mcp`,
+      );
     });
 
     function shutdown() {
