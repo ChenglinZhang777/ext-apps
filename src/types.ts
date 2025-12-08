@@ -44,6 +44,28 @@ type VerifySchemaMatches<TSchema extends z.ZodTypeAny, TInterface> =
 export const LATEST_PROTOCOL_VERSION = "2025-11-21";
 
 /**
+ * Color theme preference for the host environment.
+ * @see {@link McpUiHostContext.theme}
+ */
+export type McpUiTheme = "light" | "dark";
+
+/** Runtime validation schema for {@link McpUiTheme}. */
+export const McpUiThemeSchema = z.enum(["light", "dark"]);
+
+/**
+ * Display mode for UI presentation.
+ * - `inline`: Embedded within the conversation flow
+ * - `fullscreen`: Expanded to fill the available viewport
+ * - `pip`: Picture-in-picture floating window
+ *
+ * @see {@link McpUiHostContext.displayMode}
+ */
+export type McpUiDisplayMode = "inline" | "fullscreen" | "pip";
+
+/** Runtime validation schema for {@link McpUiDisplayMode}. */
+export const McpUiDisplayModeSchema = z.enum(["inline", "fullscreen", "pip"]);
+
+/**
  * Request to open an external URL in the host's default browser.
  *
  * Sent from the Guest UI to the Host when requesting to open an external link.
@@ -425,12 +447,12 @@ export interface McpUiHostContext {
    * Current color theme preference.
    * @example "dark"
    */
-  theme?: "light" | "dark";
+  theme?: McpUiTheme;
   /**
    * How the UI is currently displayed.
    * @example "inline"
    */
-  displayMode?: "inline" | "fullscreen" | "pip";
+  displayMode?: McpUiDisplayMode;
   /**
    * Display modes the host supports.
    * Apps can use this to offer mode-switching UI if applicable.
@@ -501,8 +523,8 @@ export const McpUiHostContextSchema: z.ZodType<McpUiHostContext> = z.object({
       tool: ToolSchema,
     })
     .optional(),
-  theme: z.enum(["light", "dark"]).optional(),
-  displayMode: z.enum(["inline", "fullscreen", "pip"]).optional(),
+  theme: McpUiThemeSchema.optional(),
+  displayMode: McpUiDisplayModeSchema.optional(),
   availableDisplayModes: z.array(z.string()).optional(),
   viewport: z
     .object({
