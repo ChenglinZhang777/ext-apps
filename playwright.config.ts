@@ -12,7 +12,7 @@ export default defineConfig({
   snapshotPathTemplate:
     "{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}{ext}",
   use: {
-    baseURL: "http://localhost:8080",
+    baseURL: "http://localhost:8088",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },
@@ -30,7 +30,7 @@ export default defineConfig({
   // Supports EXAMPLE=<folder> env var to run a single example (e.g., EXAMPLE=say-server npm run test:e2e)
   webServer: {
     command: "npm run examples:start",
-    url: "http://localhost:8080",
+    url: "http://localhost:8088",
     // Always start fresh servers to avoid stale state issues
     reuseExistingServer: false,
     // 3 minutes to allow uv to download Python dependencies on first run

@@ -73,13 +73,13 @@ console.log("");
 const commands: Parameters<typeof concurrently>[0] = [
   // Server examples
   ...servers.map(({ dir, port }) => ({
-    command: `npm run --workspace examples/${dir} ${command}`,
+    command: `npm run --workspace=examples/${dir} ${command}`,
     name: dir,
     env: { PORT: String(port) },
   })),
   // Basic host with SERVERS env
   {
-    command: `npm run --workspace examples/${BASIC_HOST} ${command}`,
+    command: `npm run --workspace=examples/${BASIC_HOST} ${command}`,
     name: BASIC_HOST,
     env: { SERVERS: serversEnv },
   },

@@ -19,8 +19,8 @@ import type { McpUiResourceCsp } from "@modelcontextprotocol/ext-apps";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const HOST_PORT = parseInt(process.env.HOST_PORT || "8080", 10);
-const SANDBOX_PORT = parseInt(process.env.SANDBOX_PORT || "8081", 10);
+const HOST_PORT = parseInt(process.env.HOST_PORT || "8088", 10);
+const SANDBOX_PORT = parseInt(process.env.SANDBOX_PORT || "8089", 10);
 const DIRECTORY = join(__dirname, "dist");
 const SERVERS: string[] = process.env.SERVERS
   ? JSON.parse(process.env.SERVERS)
